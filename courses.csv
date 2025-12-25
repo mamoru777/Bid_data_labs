@@ -1,0 +1,6 @@
+_id,title,department,hours,instructor_id
+1,Programming Basics,Computer Science,72,1
+2,Higher Mathematics,Applied Math,108,1
+3,Physics I,Physics,90,1
+4,Database Systems,Computer Science,72,2
+5,Algorithms & Data Structures,Computer Science,90,2

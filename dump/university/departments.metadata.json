@@ -1,0 +1,1 @@
+{"options":{"capped":true,"size":{"$numberInt":"5120"},"max":{"$numberInt":"100"}},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"0b9667e6ae8c4f568f74709fa6daa54f","collectionName":"departments","type":"collection"}

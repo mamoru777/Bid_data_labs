@@ -1,0 +1,20 @@
+[
+    {
+        "studentRef": { "$ref": "students", "$id": "1"},
+        "firstName": "Александр", 
+        "lastName": "Сенькин", 
+        "group": "ИТССМ"
+    },
+    {
+        "studentRef": { "$ref": "students", "$id": "2"},
+        "firstName": "Пётр", 
+        "lastName": "Петров", 
+        "group": "ИТССМ"
+    },
+    {
+        "studentRef": { "$ref": "students", "$id": "3"},
+        "firstName": "Иван", 
+        "lastName": "Иванов", 
+        "group": "ИТССМ-2"
+    }
+]

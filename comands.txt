@@ -1,1 +1,112 @@
+mongosh "mongodb://root:example@localhost:27017/admin"
 
+use university
+
+db.createCollection('departments', { capped: true, size: 5120, max: 100 });
+
+db.createCollection('students');
+
+db.createCollection('instructors');
+
+db.createCollection('courses');
+
+db.createCollection('enrollments');
+
+docker cp departments.json 94bca1d3710c3aad5fdb24ec8b5aee6fd48c200eeb630c15b74aa4b517efde71:departments.json
+
+docker compose exec mongo bash -c "mongoimport --db university --collection departments --file /departments.json --jsonArray -u root -p example --authenticationDatabase admin"
+
+db.students.insertOne({_id: '1', firstName: 'Александр', lastName: 'Сенькин', departmentRef: {$ref: 'departments', $id: '1'}});
+
+db.students.insertMany([{_id: '2', firstName: 'Пётр', lastName: 'Петров', departmentRef: {$ref: 'departments', $id: '1'}}, {_id: '3', firstName: 'Иван', lastName: 'Иванов', departmentRef: {$ref: 'departments', $id: '2'}}]);
+
+docker cp enrollments.json 94bca1d3710c3aad5fdb24ec8b5aee6fd48c200eeb630c15b74aa4b517efde71:enrollments.json
+
+docker compose exec mongo bash -c "mongoimport --db university --collection enrollments --file /enrollments.json --jsonArray -u root -p example --authenticationDatabase admin"
+
+docker cp instructors.json 94bca1d3710c3aad5fdb24ec8b5aee6fd48c200eeb630c15b74aa4b517efde71:instructors.json
+
+docker compose exec mongo bash -c "mongoimport --db university --collection instructors --file /instructors.json --jsonArray -u root -p example --authenticationDatabase admin"
+
+docker cp courses.csv 94bca1d3710c3aad5fdb24ec8b5aee6fd48c200eeb630c15b74aa4b517efde71:courses.csv             
+
+docker compose exec mongo bash -c "mongoimport --db university --collection courses --type csv --headerline --file /courses.csv -u root -p example --authenticationDatabase admin"
+
+db.courses.aggregate([
+  {
+    $lookup: {
+      from: "instructors",
+      localField: "instructor_id",    // поле в enrollments
+      foreignField: "_id",  // поле в students
+      as: "instructor"
+    }
+  }
+]);
+
+db.enrollments.aggregate([{$lookup: {from: "students", localField: "studentRef.$id", foreignField: "_id", as: "studentInfo"}}]).pretty();
+
+db.students.replaceOne({_id: '3'}, {_id: '3', firstName: 'Алексей', lastName: 'Алексеев', departmentRef: {$ref: 'departments', $id: '2'}});
+
+db.courses.updateOne({_id: 2}, {$set: {hours: 28}});
+
+db.enrollments.updateMany({group: 'ИТССМ'}, {$set: {group: 'ИТССМ-1'}});
+
+db.courses.deleteOne({_id: 3});
+
+db.courses.deleteMany({instructor_id: 2});
+
+db.instructors.updateMany({}, {$set: {books : []}});
+
+db.instructors.updateOne({_id: '1'}, {$push: {books: 'Методические указания по программированию'}});
+
+db.instructors.updateOne({_id: '1'}, {$addToSet: {books: 'Методические указания по алгоритмам и стрктурам данных'}});
+
+db.instructors.updateOne({_id: '1'}, {$pop: {books: 1}});
+
+ db.enrollments.drop();
+
+ db.students.find({firstName: 'Пётр', lastName: 'Петров'});
+
+ db.courses.find({name: 'программирование'});
+
+ db.instructors.find({books: 'Методические указания по программированию'});
+
+ db.courses.find({_id: 2}, {title: 1})
+
+ db.instructors.find({'contacts.email': 'denis@mail.ru'});
+
+ db.students.find().skip(1).limit(1);
+
+ db.students.find().sort({firstName: -1});
+
+ db.courses.find({hours: {$gt: 30}});
+
+  db.instructors.find({$or: [{degree: 'Doctor'}, {degree: 'Candidate'}]});
+
+ db.instructors.updateOne({_id: '1'}, {$push: {books: 'Методичка'}});
+
+ db.instructors.updateOne({_id: '2'}, {$push: {books: 'Методичка'}});
+
+ db.instructors.find({books: {$in: ['Методичка', 'Методические указания по программированию']}});
+
+  db.students.find({lastName: {$in: ['Петров', 'Алексеев']}});
+
+  db.departments.createIndex({name: 1});
+
+  db.students.createIndex({lastName: -1}, {unique: true});
+
+  db.departments.dropIndex('name_1');
+
+  db.students.aggregate([{$group: {_id: '$group', count: {$sum: 1}}}]);
+
+   db.students.aggregate([{$lookup: {from: 'departments', localField: 'departmentRef.$id', foreignField: '_id', as: 'departmentInfo'}}]);
+
+   db.courses.aggregate([{$group: {_id: 'null', avgHours: {$avg: '$hours'}}}]);
+
+   docker compose exec mongo bash -c "mongodump --db university --out /dump -u root -p example --authenticationDatabase admin"
+
+   docker cp 94bca1d3710c3aad5fdb24ec8b5aee6fd48c200eeb630c15b74aa4b517efde71:/dump ./dump
+
+   docker compose exec mongo bash -c "mongodump --db university --collection courses --out /dump_courses -u root -p example --authenticationDatabase admin"
+
+   docker cp 94bca1d3710c3aad5fdb24ec8b5aee6fd48c200eeb630c15b74aa4b517efde71:/dump_courses ./dump_courses

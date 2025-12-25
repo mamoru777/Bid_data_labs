@@ -1,0 +1,17 @@
+	
+	[
+		{
+			"_id": "1",
+			"firstName": "Денис", 
+			"lastName": "Дорохов",
+			"degree": "Doctor",
+			"contacts": {"email": "denis@mail.ru"}
+		},
+		{
+			"_id": "2",
+			"firstName": "Жанна", 
+			"lastName": "Дарк", 
+			"degree": "Candidate",
+			"contacts": { "email": "zhanna@mail.ru" }
+		}
+	]
